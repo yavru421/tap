@@ -2065,9 +2065,6 @@ C:\dev\TEMPLATE\tap\obj\Debug\net8.0\compressed\85ud6h6a07-{0}-tjcz0u77k5-tjcz0u
 C:\dev\TEMPLATE\tap\obj\Debug\net8.0\compressed\qd6awf87o0-{0}-tptq2av103-tptq2av103.gz
 C:\dev\TEMPLATE\tap\obj\Debug\net8.0\compressed\m5rzpu6bzt-{0}-lfu7j35m59-lfu7j35m59.gz
 C:\dev\TEMPLATE\tap\obj\Debug\net8.0\compressed\pqeuc8v8w2-{0}-oyz0vx2fzb-oyz0vx2fzb.gz
-C:\dev\TEMPLATE\tap\obj\Debug\net8.0\compressed\vfhpx6nnru-{0}-z3ml2v7wuh-z3ml2v7wuh.gz
-C:\dev\TEMPLATE\tap\obj\Debug\net8.0\compressed\c1uem1dwqg-{0}-xearz44lxn-xearz44lxn.gz
-C:\dev\TEMPLATE\tap\obj\Debug\net8.0\compressed\coi158ixl8-{0}-h5hfsbxpxj-h5hfsbxpxj.gz
 C:\dev\TEMPLATE\tap\obj\Debug\net8.0\staticwebassets.build.json
 C:\dev\TEMPLATE\tap\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\dev\TEMPLATE\tap\obj\Debug\net8.0\staticwebassets.development.json
@@ -2075,3 +2072,6 @@ C:\dev\TEMPLATE\tap\obj\Debug\net8.0\staticwebassets.build.endpoints.json
 C:\dev\TEMPLATE\tap\obj\Debug\net8.0\swae.build.ex.cache
 C:\dev\TEMPLATE\tap\obj\Debug\net8.0\Tap.Client.csproj.Up2Date
 C:\dev\TEMPLATE\tap\obj\Debug\net8.0\ref\Tap.Client.dll
+C:\dev\TEMPLATE\tap\obj\Debug\net8.0\compressed\vfhpx6nnru-{0}-f6crtc56ki-f6crtc56ki.gz
+C:\dev\TEMPLATE\tap\obj\Debug\net8.0\compressed\c1uem1dwqg-{0}-czwys108yl-czwys108yl.gz
+C:\dev\TEMPLATE\tap\obj\Debug\net8.0\compressed\coi158ixl8-{0}-ep2nn48930-ep2nn48930.gz

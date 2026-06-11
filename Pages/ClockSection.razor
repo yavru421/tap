@@ -12,6 +12,20 @@
         <span class="elapsed-label">Session Time</span>
         <div class="elapsed-time">@ElapsedTime.ToString(@"hh\:mm\:ss")</div>
     </div>
+
+    @if (!IsClockedIn && SchemaColumns.Any())
+    {
+        <div class="custom-fields-container" style="margin-bottom: 1rem; text-align: left;">
+            @foreach (var col in SchemaColumns)
+            {
+                <div class="form-group" style="margin-bottom: 0.5rem;">
+                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">@col</label>
+                    <input type="text" class="form-control" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary);" 
+                           @bind="ActiveCustomFields[col]" placeholder="Enter @col..." />
+                </div>
+            }
+        </div>
+    }
     
     <div class="action-buttons">
         <button class="btn btn-primary" @onclick="ClockIn" disabled="@IsClockedIn">
@@ -41,6 +55,9 @@
     private System.Threading.Timer? _timer;
     private string LocationStatus = "Location not captured";
 
+    private List<string> SchemaColumns = new();
+    private Dictionary<string, string> ActiveCustomFields = new();
+
     protected override async Task OnInitializedAsync()
     {
         _timer = new System.Threading.Timer(TimerCallback, null, 0, 1000);
@@ -50,6 +67,15 @@
     private async Task LoadStateAsync()
     {
         var records = await TrackingService.GetRecordsAsync();
+        SchemaColumns = await TrackingService.GetSchemaColumnsAsync();
+        
+        // Initialize dictionary
+        foreach (var col in SchemaColumns)
+        {
+            if (!ActiveCustomFields.ContainsKey(col))
+                ActiveCustomFields[col] = "";
+        }
+
         var activeSession = records.FirstOrDefault(r => r.IsActive);
         
         if (activeSession != null)
@@ -83,7 +109,12 @@
             LocationStatus = "GPS failed: " + ex.Message;
         }
 
-        await TrackingService.ClockInAsync(lat, lng);
+        // Pass a copy of the dictionary
+        await TrackingService.ClockInAsync(lat, lng, new Dictionary<string, string>(ActiveCustomFields));
+        
+        // Clear fields for next clock in
+        foreach (var key in ActiveCustomFields.Keys.ToList()) ActiveCustomFields[key] = "";
+
         await LoadStateAsync();
         await OnActivityRecorded.InvokeAsync();
     }

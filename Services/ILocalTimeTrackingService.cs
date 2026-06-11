@@ -7,7 +7,8 @@ namespace Tap.Client.Services
     public interface ILocalTimeTrackingService
     {
         Task<List<SessionRecord>> GetRecordsAsync();
-        Task ClockInAsync(string lat, string lng);
+        Task<List<string>> GetSchemaColumnsAsync();
+        Task ClockInAsync(string lat, string lng, Dictionary<string, string> customFields);
         Task ClockOutAsync();
         Task<bool> ExportToMarkdownAsync();
         Task ClearAllRecordsAsync();

@@ -19,12 +19,16 @@
         </div>
     </div>
     
-    <div class="table-container">
+    <div class="table-container" style="overflow-x: auto;">
         <table class="activity-table">
             <thead>
                 <tr>
                     <th>Clock In</th>
                     <th>Clock Out</th>
+                    @foreach (var col in SchemaColumns)
+                    {
+                        <th>@col</th>
+                    }
                     <th>Duration</th>
                 </tr>
             </thead>
@@ -32,9 +36,13 @@
                 @foreach (var record in Records.OrderByDescending(r => r.InTime))
                 {
                     <tr>
-                        <td>@record.InTime.ToString("M/d hh:mm tt")</td>
-                        <td>@(record.IsActive ? "ACTIVE" : record.OutTime!.Value.ToString("M/d hh:mm tt"))</td>
-                        <td>
+                        <td style="white-space: nowrap;">@record.InTime.ToString("M/d hh:mm tt")</td>
+                        <td style="white-space: nowrap;">@(record.IsActive ? "ACTIVE" : record.OutTime!.Value.ToString("M/d hh:mm tt"))</td>
+                        @foreach (var col in SchemaColumns)
+                        {
+                            <td>@(record.CustomFields.ContainsKey(col) ? record.CustomFields[col] : "")</td>
+                        }
+                        <td style="white-space: nowrap;">
                             @if (record.IsActive)
                             {
                                 <span class="status-badge status-pending">In Progress</span>
@@ -57,6 +65,13 @@
 
     [Parameter]
     public EventCallback OnSyncComplete { get; set; }
+
+    private List<string> SchemaColumns = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        SchemaColumns = await TrackingService.GetSchemaColumnsAsync();
+    }
 
     private async Task ExportData()
     {

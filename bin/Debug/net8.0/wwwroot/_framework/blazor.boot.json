@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "Tap.Client",
   "resources": {
-    "hash": "sha256-Elko8DFdDYYsc/qnF8AQ5wiGEmewadsTW0ISQHrCZE8=",
+    "hash": "sha256-8dutVGoo8kdIgBMUcSNQ+q7lnuCEhTuumcHvevsBTAo=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-sn/g61GjVPhViOYQDkq1OMlk0eyS9r2Hi0qgU2o0HIU="
     },
@@ -209,10 +209,10 @@
       "mscorlib.wasm": "sha256-YI5F+NHcYCSuCGvvp5vyTL2orAoMlXo4ep5foTyMfeg=",
       "netstandard.wasm": "sha256-jVzOxH5q4FYYDM01Qwoa/2MjK7CwbDVo6rPFjrBorII=",
       "System.Private.CoreLib.wasm": "sha256-d+N5gZbidgB9OgmPuYn1T6BQWHjajGzz+AvKnZJ+zmA=",
-      "Tap.Client.wasm": "sha256-0Q6wJS1Cugz6vLTIbSpucnAi8VFUqxjIVotQz6ttPgc="
+      "Tap.Client.wasm": "sha256-mcwIvCqbdsnzK9MM3AsM39i68gIh6hj5XGMBuMsoNYg="
     },
     "pdb": {
-      "Tap.Client.pdb": "sha256-eYDTiiNMnK5T6OqYsZJVDyA/xUkwoDU8tM3uCHRFbVo="
+      "Tap.Client.pdb": "sha256-eBtZEVJyVw8iEVY9diEyQq1swnxKRQPMLS9p34zPamg="
     }
   },
   "cacheBootResources": true,

@@ -10,6 +10,8 @@ namespace Tap.Client.Models
         public string Latitude { get; set; }
         public string Longitude { get; set; }
         public bool Synced { get; set; }
+        
+        public Dictionary<string, string> CustomFields { get; set; } = new();
 
         public TimeSpan? Duration => OutTime.HasValue ? OutTime.Value - InTime : null;
         public bool IsActive => !OutTime.HasValue;
