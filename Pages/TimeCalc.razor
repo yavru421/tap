@@ -376,18 +376,21 @@ let loadingError = false;
 
 try {
   let webView = new WebView();
-  await webView.loadURL(url);
+  // Race loading page against a 2.5s timer to prevent Scriptable execution timeout
+  let loadPromise = webView.loadURL(url);
+  let timeoutPromise = new Promise(r => Timer.schedule(2500, false, r));
+  await Promise.race([loadPromise, timeoutPromise]);
+  
+  // Read local storage immediately (available as soon as DOM loads, no need to wait for WASM/DLL boots)
   let jsonStr = await webView.evaluateJavaScript(""localStorage.getItem('clock_in_entries')"");
   if (jsonStr) {
     let entries = JSON.parse(jsonStr);
     if (entries && entries.length > 0) {
-      // Sort entries by Timestamp descending to get the newest punch
       entries.sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
       let latest = entries[0];
       let msg = latest.ErrorMessage || """";
       isClockedIn = msg.toLowerCase().includes(""in"");
       
-      // Format timestamp
       let date = new Date(latest.Timestamp);
       let hours = date.getHours();
       let minutes = date.getMinutes();
