@@ -1,0 +1,28 @@
+@page "/time-to-time"
+
+<PageTitle>Time to Time Calculator</PageTitle>
+
+<div class="container" style="max-width: 600px;">
+    <a href="" style="color: var(--accent-primary); text-decoration: none; margin-bottom: 1rem; display: inline-block;">&larr; Back to Home</a>
+    
+    <section class="clock-section" style="text-align: left;">
+        <h2 style="margin-bottom: 1.5rem;">Time to Time Calculator</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+            Calculate the duration between a start time and an end time. 
+            <em>(This tool is a placeholder for future implementation)</em>
+        </p>
+        
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="flex: 1;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Start Time</label>
+                <input type="time" class="form-control" style="width: 100%; padding: 0.75rem; border-radius: 0.5rem; background-color: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-color); color: white;" />
+            </div>
+            <div style="flex: 1;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">End Time</label>
+                <input type="time" class="form-control" style="width: 100%; padding: 0.75rem; border-radius: 0.5rem; background-color: rgba(15, 23, 42, 0.5); border: 1px solid var(--border-color); color: white;" />
+            </div>
+        </div>
+        
+        <button class="btn btn-primary" style="width: 100%; max-width: none;">Calculate Duration</button>
+    </section>
+</div>

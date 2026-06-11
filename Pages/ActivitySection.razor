@@ -1,0 +1,79 @@
+@using Tap.Client.Models
+@using Tap.Client.Services
+@inject ILocalTimeTrackingService TrackingService
+
+<section class="activity-section">
+    <div class="activity-header">
+        <h2>Recent Activity</h2>
+        <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-outline btn-sm" @onclick="ExportData">
+                <span class="sync-icon">📄</span> Sync to Document
+            </button>
+            <button class="btn btn-secondary btn-sm" @onclick="ClearData" style="background-color: transparent; border: 1px solid var(--danger); color: var(--danger);">
+                Clear
+            </button>
+        </div>
+    </div>
+    
+    <div class="table-container">
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var record in Records.OrderByDescending(r => r.Timestamp))
+                {
+                    <tr>
+                        <td>
+                            <span class="type-badge @(record.Type == "IN" ? "type-in" : "type-out")">@record.Type</span>
+                        </td>
+                        <td>@record.Timestamp.ToString("hh:mm:ss tt")</td>
+                        <td>
+                            @if (record.Synced)
+                            {
+                                <span class="status-badge status-synced">✓ Synced</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-pending">⚠ Pending Sync</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (!Records.Any())
+    {
+        <div class="empty-state" style="display: block;">
+            No activity yet today.
+        </div>
+    }
+</section>
+
+@code {
+    [Parameter]
+    public List<ActivityRecord> Records { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnSyncComplete { get; set; }
+
+    private async Task ExportData()
+    {
+        var success = await TrackingService.ExportToMarkdownAsync();
+        if (success)
+        {
+            await OnSyncComplete.InvokeAsync();
+        }
+    }
+
+    private async Task ClearData()
+    {
+        await TrackingService.ClearAllRecordsAsync();
+        await OnSyncComplete.InvokeAsync();
+    }
+}

@@ -1,0 +1,37 @@
+@page "/"
+@using Tap.Client.Models
+@using Tap.Client.Services
+@inject ILocalTimeTrackingService TrackingService
+
+<PageTitle>TAP - Clock In</PageTitle>
+
+<ClockSection OnActivityRecorded="LoadRecords" />
+<ActivitySection Records="Records" OnSyncComplete="LoadRecords" />
+
+<section class="tools-section">
+    <h2>Time Tools</h2>
+    <div class="tools-grid">
+        <a href="time-to-time" class="tool-card">
+            <h3>Time to Time Calc</h3>
+            <p>Calculate duration between two specific times.</p>
+        </a>
+        <a href="decimal-calc" class="tool-card">
+            <h3>Decimal Hours</h3>
+            <p>Convert hours and minutes to decimal formats.</p>
+        </a>
+    </div>
+</section>
+
+@code {
+    private List<ActivityRecord> Records = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRecords();
+    }
+
+    private async Task LoadRecords()
+    {
+        Records = await TrackingService.GetRecordsAsync();
+    }
+}
