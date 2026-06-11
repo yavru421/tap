@@ -4,59 +4,95 @@
 
 <section class="activity-section">
     <div class="activity-header">
-        <h2>Sessions</h2>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <button class="btn btn-outline btn-sm" @onclick="ExportData">
-                <span class="sync-icon">⬇</span> Export record.md
+        <h2>History</h2>
+        @if (Records.Any())
+        {
+            <button class="btn-danger-outline" @onclick="ClearData">
+                Clear All
             </button>
-            <label class="btn btn-outline btn-sm" style="cursor: pointer; margin: 0;">
-                <InputFile OnChange="LoadFile" accept=".md" style="display: none;" />
-                <span class="sync-icon">⬆</span> Load record.md
-            </label>
-            <button class="btn btn-secondary btn-sm" @onclick="ClearData" style="background-color: transparent; border: 1px solid var(--danger); color: var(--danger);">
-                Clear
+        }
+    </div>
+
+    <div class="sync-button-bar">
+        <button class="btn btn-outline btn-sm" @onclick="ExportData">
+            <span class="sync-icon">⬇</span> Export MD
+        </button>
+        <div class="file-input-wrapper">
+            <button class="btn btn-outline btn-sm" style="width: 100%;">
+                <span class="sync-icon">⬆</span> Load MD
             </button>
+            <InputFile OnChange="LoadFile" accept=".md" />
         </div>
     </div>
     
-    <div class="table-container" style="overflow-x: auto;">
-        <table class="activity-table">
-            <thead>
-                <tr>
-                    <th>Clock In</th>
-                    <th>Clock Out</th>
-                    @foreach (var col in SchemaColumns)
-                    {
-                        <th>@col</th>
-                    }
-                    <th>Duration</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var record in Records.OrderByDescending(r => r.InTime))
-                {
-                    <tr>
-                        <td style="white-space: nowrap;">@record.InTime.ToString("M/d hh:mm tt")</td>
-                        <td style="white-space: nowrap;">@(record.IsActive ? "ACTIVE" : record.OutTime!.Value.ToString("M/d hh:mm tt"))</td>
-                        @foreach (var col in SchemaColumns)
-                        {
-                            <td>@(record.CustomFields.ContainsKey(col) ? record.CustomFields[col] : "")</td>
-                        }
-                        <td style="white-space: nowrap;">
+    @if (!Records.Any())
+    {
+        <div class="empty-state">
+            <p style="font-weight: 600; margin-bottom: 0.25rem;">No active log file</p>
+            <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">Upload your record.md file to load previous tracking sessions or clock in to begin.</p>
+        </div>
+    }
+    else
+    {
+        <div class="session-cards-list">
+            @foreach (var record in Records.OrderByDescending(r => r.InTime))
+            {
+                <div class="session-card @(record.IsActive ? "active" : "")">
+                    <div class="session-card-header">
+                        <div class="session-time-range">
+                            <div class="time-row clock-in">
+                                <span style="color: var(--success); font-size: 0.65rem; font-weight: 700; width: 24px;">IN</span>
+                                <span>@record.InTime.ToString("MMM d, h:mm tt")</span>
+                            </div>
+                            <div class="time-row clock-out">
+                                <span style="color: @(record.IsActive ? "var(--warning)" : "var(--text-muted)"); font-size: 0.65rem; font-weight: 700; width: 24px;">OUT</span>
+                                <span>@(record.IsActive ? "ACTIVE" : record.OutTime!.Value.ToString("MMM d, h:mm tt"))</span>
+                            </div>
+                        </div>
+                        
+                        <div class="session-duration">
                             @if (record.IsActive)
                             {
-                                <span class="status-badge status-pending">In Progress</span>
+                                <span class="status-badge in-progress">In Progress</span>
                             }
                             else
                             {
-                                <span style="font-weight: 500;">@Math.Floor(record.Duration!.Value.TotalHours)h @record.Duration!.Value.Minutes m</span>
+                                <div class="duration-val">
+                                    @Math.Floor(record.Duration!.Value.TotalHours)h @record.Duration!.Value.Minutes<span>m</span>
+                                </div>
+                                <span class="status-badge completed">Done</span>
                             }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                        </div>
+                    </div>
+
+                    <div class="session-details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Location</span>
+                            <span class="detail-val">
+                                @if (!string.IsNullOrEmpty(record.Latitude) && record.Latitude != "Unknown")
+                                {
+                                    <a class="gps-link" href="https://maps.google.com/?q=@record.Latitude,@record.Longitude" target="_blank" rel="noopener">
+                                        📍 Map Link
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span>No GPS</span>
+                                }
+                            </span>
+                        </div>
+                        @foreach (var col in SchemaColumns)
+                        {
+                            <div class="detail-item">
+                                <span class="detail-label">@col</span>
+                                <span class="detail-val">@(record.CustomFields.ContainsKey(col) && !string.IsNullOrWhiteSpace(record.CustomFields[col]) ? record.CustomFields[col] : "-")</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </section>
 
 @code {

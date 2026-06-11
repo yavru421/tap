@@ -4,42 +4,49 @@
 @inject ILocalTimeTrackingService TrackingService
 @inject IJSRuntime JSRuntime
 
-<section class="clock-section">
+<section class="clock-section @(IsClockedIn ? "active-session" : "")">
     <div class="digital-clock">@CurrentTime.ToString("hh:mm:ss tt")</div>
     <div class="date-display">@CurrentTime.ToString("dddd, MMMM dd, yyyy")</div>
     
     <div class="elapsed-time-container">
-        <span class="elapsed-label">Session Time</span>
+        <span class="elapsed-label">@(IsClockedIn ? "ACTIVE SESSION TIME" : "LAST SESSION DURATION")</span>
         <div class="elapsed-time">@ElapsedTime.ToString(@"hh\:mm\:ss")</div>
     </div>
 
     @if (!IsClockedIn && SchemaColumns.Any())
     {
-        <div class="custom-fields-container" style="margin-bottom: 1rem; text-align: left;">
+        <div class="custom-fields-container">
             @foreach (var col in SchemaColumns)
             {
-                <div class="form-group" style="margin-bottom: 0.5rem;">
-                    <label style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">@col</label>
-                    <input type="text" class="form-control" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--bg-secondary); color: var(--text-primary);" 
-                           @bind="ActiveCustomFields[col]" placeholder="Enter @col..." />
+                <div class="form-group">
+                    <label>@col</label>
+                    <input type="text" class="form-control" 
+                           @bind="ActiveCustomFields[col]" placeholder="e.g. Work, Study, Project..." />
                 </div>
             }
         </div>
     }
     
     <div class="action-buttons">
-        <button class="btn btn-primary" @onclick="ClockIn" disabled="@IsClockedIn">
-            <span class="icon">▶</span> Clock In
-        </button>
-        <button class="btn btn-secondary" @onclick="ClockOut" disabled="@(!IsClockedIn)">
-            <span class="icon">■</span> Clock Out
-        </button>
+        @if (!IsClockedIn)
+        {
+            <button class="btn btn-success" @onclick="ClockIn">
+                <span class="icon">▶</span> Clock In
+            </button>
+        }
+        else
+        {
+            <button class="btn btn-danger" @onclick="ClockOut">
+                <span class="icon">■</span> Clock Out
+            </button>
+        }
     </div>
     
     @if (!string.IsNullOrEmpty(LocationStatus))
     {
         <div class="location-status">
-            <span>📍 @LocationStatus</span>
+            <span class="dot online" style="width: 5px; height: 5px;"></span>
+            <span>@LocationStatus</span>
         </div>
     }
 </section>
