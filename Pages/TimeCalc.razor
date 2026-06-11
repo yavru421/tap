@@ -120,20 +120,41 @@
         </div>
 
         <!-- iOS Scriptable Widget Card -->
-        <div class="card scriptable-card" style="border-color: #6366f1; background: rgba(99, 102, 241, 0.05);">
-            <h2>iOS Scriptable Widget Integration</h2>
-            <p class="verification-desc">Copy this JavaScript code and paste it into the iOS <strong>Scriptable</strong> app to install a Home Screen Widget representing your punch status.</p>
-            
-            <textarea class="form-control" style="font-family: monospace; font-size: 0.75rem; height: 120px; background: rgba(0,0,0,0.3); color: #c9d1d9;" readonly>@ScriptableCode</textarea>
-            
-            <button class="btn-secondary" style="background: rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.3); color: #c7d2fe; display: flex; align-items: center; justify-content: center; width: 100%; gap: 6px;" @onclick="CopyScriptableScript">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                Copy Scriptable Code
-            </button>
-            @if (showCopiedIndicator)
-            {
-                <span style="font-size: 0.75rem; color: #2ea043; text-align: center; font-weight: bold; margin-top: 4px; display: block;">✔ Scriptable code copied to clipboard!</span>
-            }
+        <div class="card scriptable-card" style="border-color: #6366f1; background: rgba(99, 102, 241, 0.03); overflow: hidden; position: relative;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="background: rgba(99, 102, 241, 0.15); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(99, 102, 241, 0.25);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                </div>
+                <div>
+                    <h2 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #e0e7ff;">iOS Scriptable Widget</h2>
+                    <p class="verification-desc" style="margin: 2px 0 0 0;">Integrate clock-in state directly onto your home screen.</p>
+                </div>
+            </div>
+
+            <div class="code-editor-block" style="margin-top: 8px; border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; overflow: hidden; background: #0c1017; box-shadow: inset 0 2px 8px rgba(0,0,0,0.8), 0 4px 16px rgba(0,0,0,0.3);">
+                <div class="code-editor-header" style="background: rgba(255, 255, 255, 0.02); padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(99, 102, 241, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background: #ff5f56;"></span>
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background: #ffbd2e;"></span>
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background: #27c93f;"></span>
+                        <span style="font-family: monospace; font-size: 0.7rem; color: #8b949e; margin-left: 6px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">widget.js</span>
+                    </div>
+                    
+                    <button class="btn-copy-action" style="background: @(showCopiedIndicator ? "rgba(46, 160, 67, 0.2)" : "rgba(99, 102, 241, 0.15)"); border: 1px solid @(showCopiedIndicator ? "#2ea043" : "rgba(99, 102, 241, 0.35)"); color: @(showCopiedIndicator ? "#3fb950" : "#c7d2fe"); border-radius: 6px; padding: 4px 10px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease-in-out;" @onclick="CopyScriptableScript">
+                        @if (showCopiedIndicator)
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Copied!</span>
+                        }
+                        else
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <span>Copy Code</span>
+                        }
+                    </button>
+                </div>
+                <pre style="margin: 0; padding: 12px; max-height: 180px; overflow-y: auto; background: transparent;"><code style="font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 0.75rem; line-height: 1.45; color: #c9d1d9; white-space: pre; word-break: normal; display: block;">@ScriptableCode</code></pre>
+            </div>
         </div>
 
         <!-- Recent Activity Sync List -->
@@ -347,42 +368,84 @@
     private bool showCopiedIndicator = false;
     private string ScriptableCode => 
 @"// Scriptable Widget for Time Calc PWA
-let url = ""https://timecalc.pages.dev/time-calc"";
-let isClockedIn = " + isClockedIn.ToString().ToLower() + @";
-let lastTime = """ + DateTime.Now.ToString("hh:mm tt") + @""";
+const url = ""https://timecalc.pages.dev/time-calc"";
+
+let isClockedIn = false;
+let lastTime = ""No records"";
+let loadingError = false;
+
+try {
+  let webView = new WebView();
+  await webView.loadURL(url);
+  let jsonStr = await webView.evaluateJavaScript(""localStorage.getItem('clock_in_entries')"");
+  if (jsonStr) {
+    let entries = JSON.parse(jsonStr);
+    if (entries && entries.length > 0) {
+      // Sort entries by Timestamp descending to get the newest punch
+      entries.sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
+      let latest = entries[0];
+      let msg = latest.ErrorMessage || """";
+      isClockedIn = msg.toLowerCase().includes(""in"");
+      
+      // Format timestamp
+      let date = new Date(latest.Timestamp);
+      let hours = date.getHours();
+      let minutes = date.getMinutes();
+      let ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      lastTime = `${hours}:${minutes} ${ampm}`;
+    }
+  }
+} catch (e) {
+  console.error(e);
+  loadingError = true;
+}
 
 let widget = new ListWidget();
 widget.backgroundColor = new Color(""#161b22"");
+widget.url = url;
 
-let title = widget.addText(""Work Shift"");
+// Header Stack
+let headerStack = widget.addStack();
+headerStack.centerAlignContent();
+let icon = headerStack.addText(""⏱️ "");
+icon.font = Font.systemFont(12);
+let title = headerStack.addText(""Work Shift"");
 title.font = Font.boldSystemFont(12);
 title.textColor = new Color(""#8b949e"");
 
 widget.addSpacer(8);
 
+// Status Stack
 let statusStack = widget.addStack();
 statusStack.centerAlignContent();
 
+let dotColor = loadingError ? new Color(""#d29922"") : (isClockedIn ? new Color(""#2ea043"") : new Color(""#f85149""));
 let dot = statusStack.addText(""● "");
 dot.font = Font.boldSystemFont(14);
-dot.textColor = isClockedIn ? new Color(""#2ea043"") : new Color(""#ff7b72"");
+dot.textColor = dotColor;
 
-let statusText = statusStack.addText(isClockedIn ? ""Clocked In"" : ""Clocked Out"");
+let statusLabel = isClockedIn ? ""Clocked In"" : ""Clocked Out"";
+if (loadingError) statusLabel = ""Offline/Error"";
+let statusText = statusStack.addText(statusLabel);
 statusText.font = Font.boldSystemFont(14);
-statusText.textColor = isClockedIn ? new Color(""#2ea043"") : new Color(""#ff7b72"");
+statusText.textColor = dotColor;
 
 widget.addSpacer(4);
 
-let time = widget.addText(""Last status: "" + lastTime);
+// Time Label
+let time = widget.addText(loadingError ? ""Tap to refresh app"" : `Last status: ${lastTime}`);
 time.font = Font.mediumSystemFont(10);
 time.textColor = new Color(""#8b949e"");
 
 widget.addSpacer(8);
 
-let btn = widget.addText(""🔄 Open Attendance"");
-btn.font = Font.boldSystemFont(12);
-btn.textColor = new Color(""#ffffff"");
-widget.url = url;
+// Action Button / Instruction
+let btn = widget.addText(""🔄 Open PWA"");
+btn.font = Font.boldSystemFont(11);
+btn.textColor = new Color(""#58a6ff"");
 
 Script.setWidget(widget);
 Script.complete();";
