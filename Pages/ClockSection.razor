@@ -1,117 +1,107 @@
+@using System.Text.Json
 @using Tap.Client.Models
 @using Tap.Client.Services
 @inject ILocalTimeTrackingService TrackingService
 @inject IJSRuntime JSRuntime
-@implements IDisposable
 
 <section class="clock-section">
-    <div class="digital-clock">@CurrentTime.ToString("HH:mm:ss")</div>
-    <div class="date-display">@CurrentTime.ToString("dddd, MMMM d, yyyy")</div>
+    <div class="digital-clock">@CurrentTime.ToString("hh:mm:ss tt")</div>
+    <div class="date-display">@CurrentTime.ToString("dddd, MMMM dd, yyyy")</div>
     
     <div class="elapsed-time-container">
-        <span class="elapsed-label">Current Session:</span>
+        <span class="elapsed-label">Session Time</span>
         <div class="elapsed-time">@ElapsedTime.ToString(@"hh\:mm\:ss")</div>
     </div>
-
+    
     <div class="action-buttons">
-        <button class="btn btn-primary" disabled="@IsClockedIn" @onclick="ClockIn">Clock In</button>
-        <button class="btn btn-secondary" disabled="@(!IsClockedIn)" @onclick="ClockOut">Clock Out</button>
+        <button class="btn btn-primary" @onclick="ClockIn" disabled="@IsClockedIn">
+            <span class="icon">▶</span> Clock In
+        </button>
+        <button class="btn btn-secondary" @onclick="ClockOut" disabled="@(!IsClockedIn)">
+            <span class="icon">■</span> Clock Out
+        </button>
     </div>
-
-    <div class="location-status">
-        <div class="location-icon">📍</div>
-        <div class="location-text">@LocationStatus</div>
-    </div>
+    
+    @if (!string.IsNullOrEmpty(LocationStatus))
+    {
+        <div class="location-status">
+            <span>📍 @LocationStatus</span>
+        </div>
+    }
 </section>
 
 @code {
-    private DateTime CurrentTime { get; set; } = DateTime.Now;
-    private TimeSpan ElapsedTime { get; set; } = TimeSpan.Zero;
-    private DateTime? SessionStartTime { get; set; }
-    private bool IsClockedIn => SessionStartTime.HasValue;
-    private string LocationStatus { get; set; } = "Ready to capture location";
-    private System.Threading.Timer? _timer;
-
     [Parameter]
     public EventCallback OnActivityRecorded { get; set; }
 
+    private DateTime CurrentTime = DateTime.Now;
+    private TimeSpan ElapsedTime = TimeSpan.Zero;
+    private bool IsClockedIn = false;
+    private DateTime? SessionStartTime;
+    private System.Threading.Timer? _timer;
+    private string LocationStatus = "Location not captured";
+
     protected override async Task OnInitializedAsync()
     {
-        _timer = new System.Threading.Timer(Tick, null, 0, 1000);
-        
-        var records = await TrackingService.GetRecordsAsync();
-        var lastRecord = records.OrderByDescending(r => r.Timestamp).FirstOrDefault();
-        if (lastRecord != null && lastRecord.Type == "IN")
-        {
-            SessionStartTime = lastRecord.Timestamp;
-        }
+        _timer = new System.Threading.Timer(TimerCallback, null, 0, 1000);
+        await LoadStateAsync();
     }
 
-    private void Tick(object? state)
+    private async Task LoadStateAsync()
     {
-        CurrentTime = DateTime.Now;
-        if (SessionStartTime.HasValue)
+        var records = await TrackingService.GetRecordsAsync();
+        var activeSession = records.FirstOrDefault(r => r.IsActive);
+        
+        if (activeSession != null)
         {
-            ElapsedTime = CurrentTime - SessionStartTime.Value;
+            IsClockedIn = true;
+            SessionStartTime = activeSession.InTime;
         }
         else
         {
+            IsClockedIn = false;
+            SessionStartTime = null;
             ElapsedTime = TimeSpan.Zero;
         }
-        InvokeAsync(StateHasChanged);
     }
 
     private async Task ClockIn()
     {
-        await RecordAction("IN");
-        SessionStartTime = DateTime.Now;
+        LocationStatus = "Acquiring GPS...";
+        string lat = "Unknown";
+        string lng = "Unknown";
+        
+        try
+        {
+            var coords = await JSRuntime.InvokeAsync<JsonElement>("tapInterop.getCurrentLocation");
+            lat = coords.GetProperty("lat").GetString() ?? "Unknown";
+            lng = coords.GetProperty("lng").GetString() ?? "Unknown";
+            LocationStatus = $"Captured: {lat}, {lng}";
+        }
+        catch (Exception ex)
+        {
+            LocationStatus = "GPS failed: " + ex.Message;
+        }
+
+        await TrackingService.ClockInAsync(lat, lng);
+        await LoadStateAsync();
+        await OnActivityRecorded.InvokeAsync();
     }
 
     private async Task ClockOut()
     {
-        await RecordAction("OUT");
-        SessionStartTime = null;
-    }
-
-    private async Task RecordAction(string type)
-    {
-        LocationStatus = "Fetching GPS Location...";
-        var lat = "N/A";
-        var lng = "N/A";
-
-        try
-        {
-            var pos = await JSRuntime.InvokeAsync<GeolocationPosition>("tapInterop.getCurrentLocation");
-            lat = pos.Lat;
-            lng = pos.Lng;
-            LocationStatus = $"Lat: {lat}, Lng: {lng}";
-        }
-        catch (Exception ex)
-        {
-            LocationStatus = "Location unavailable";
-            Console.WriteLine($"Location Error: {ex.Message}");
-        }
-
-        var record = new ActivityRecord
-        {
-            Type = type,
-            Timestamp = DateTime.Now,
-            Latitude = lat,
-            Longitude = lng
-        };
-
-        await TrackingService.AddRecordAsync(record);
+        await TrackingService.ClockOutAsync();
+        await LoadStateAsync();
         await OnActivityRecorded.InvokeAsync();
     }
 
-    public void Dispose()
+    private void TimerCallback(object? state)
     {
-        _timer?.Dispose();
-    }
-
-    public class GeolocationPosition
-    {
-        public string Lat { get; set; } = "";
-        public string Lng { get; set; } = "";
+        CurrentTime = DateTime.Now;
+        if (IsClockedIn && SessionStartTime.HasValue)
+        {
+            ElapsedTime = CurrentTime - SessionStartTime.Value;
+        }
+        InvokeAsync(StateHasChanged);
     }
 }

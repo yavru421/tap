@@ -6,9 +6,11 @@ namespace Tap.Client.Services
 {
     public interface ILocalTimeTrackingService
     {
-        Task<List<ActivityRecord>> GetRecordsAsync();
-        Task AddRecordAsync(ActivityRecord record);
+        Task<List<SessionRecord>> GetRecordsAsync();
+        Task ClockInAsync(string lat, string lng);
+        Task ClockOutAsync();
         Task<bool> ExportToMarkdownAsync();
         Task ClearAllRecordsAsync();
+        Task LoadFromMarkdownAsync(string markdownText);
     }
 }

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\dev\\TEMPLATE\\tap\\Tap.Client\\Tap.Client.csproj": {}
+    "C:\\dev\\TEMPLATE\\tap\\Tap.Client.csproj": {}
   },
   "projects": {
-    "C:\\dev\\TEMPLATE\\tap\\Tap.Client\\Tap.Client.csproj": {
+    "C:\\dev\\TEMPLATE\\tap\\Tap.Client.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\dev\\TEMPLATE\\tap\\Tap.Client\\Tap.Client.csproj",
+        "projectUniqueName": "C:\\dev\\TEMPLATE\\tap\\Tap.Client.csproj",
         "projectName": "Tap.Client",
-        "projectPath": "C:\\dev\\TEMPLATE\\tap\\Tap.Client\\Tap.Client.csproj",
+        "projectPath": "C:\\dev\\TEMPLATE\\tap\\Tap.Client.csproj",
         "packagesPath": "C:\\Users\\John\\.nuget\\packages\\",
-        "outputPath": "C:\\dev\\TEMPLATE\\tap\\Tap.Client\\obj\\",
+        "outputPath": "C:\\dev\\TEMPLATE\\tap\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\John\\AppData\\Roaming\\NuGet\\NuGet.Config"

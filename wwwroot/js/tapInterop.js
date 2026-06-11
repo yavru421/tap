@@ -37,11 +37,11 @@ window.tapInterop = {
 
     pickAndSaveFile: async (initialContent) => {
         if (!window.showSaveFilePicker) {
-            return window.tapInterop.safariDownload('tap-timesheet.md', initialContent);
+            return window.tapInterop.safariDownload('record.md', initialContent);
         }
         try {
             const handle = await window.showSaveFilePicker({
-                suggestedName: 'tap-timesheet.md',
+                suggestedName: 'record.md',
                 types: [{
                     description: 'Markdown File',
                     accept: { 'text/markdown': ['.md'] },

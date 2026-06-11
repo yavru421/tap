@@ -4,11 +4,15 @@
 
 <section class="activity-section">
     <div class="activity-header">
-        <h2>Recent Activity</h2>
-        <div style="display: flex; gap: 0.5rem;">
+        <h2>Sessions</h2>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
             <button class="btn btn-outline btn-sm" @onclick="ExportData">
-                <span class="sync-icon">📄</span> Sync to Document
+                <span class="sync-icon">⬇</span> Export record.md
             </button>
+            <label class="btn btn-outline btn-sm" style="cursor: pointer; margin: 0;">
+                <InputFile OnChange="LoadFile" accept=".md" style="display: none;" />
+                <span class="sync-icon">⬆</span> Load record.md
+            </label>
             <button class="btn btn-secondary btn-sm" @onclick="ClearData" style="background-color: transparent; border: 1px solid var(--danger); color: var(--danger);">
                 Clear
             </button>
@@ -19,27 +23,25 @@
         <table class="activity-table">
             <thead>
                 <tr>
-                    <th>Type</th>
-                    <th>Time</th>
-                    <th>Status</th>
+                    <th>Clock In</th>
+                    <th>Clock Out</th>
+                    <th>Duration</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var record in Records.OrderByDescending(r => r.Timestamp))
+                @foreach (var record in Records.OrderByDescending(r => r.InTime))
                 {
                     <tr>
+                        <td>@record.InTime.ToString("M/d hh:mm tt")</td>
+                        <td>@(record.IsActive ? "ACTIVE" : record.OutTime!.Value.ToString("M/d hh:mm tt"))</td>
                         <td>
-                            <span class="type-badge @(record.Type == "IN" ? "type-in" : "type-out")">@record.Type</span>
-                        </td>
-                        <td>@record.Timestamp.ToString("hh:mm:ss tt")</td>
-                        <td>
-                            @if (record.Synced)
+                            @if (record.IsActive)
                             {
-                                <span class="status-badge status-synced">✓ Synced</span>
+                                <span class="status-badge status-pending">In Progress</span>
                             }
                             else
                             {
-                                <span class="status-badge status-pending">⚠ Pending Sync</span>
+                                <span style="font-weight: 500;">@Math.Floor(record.Duration!.Value.TotalHours)h @record.Duration!.Value.Minutes m</span>
                             }
                         </td>
                     </tr>
@@ -47,17 +49,11 @@
             </tbody>
         </table>
     </div>
-    @if (!Records.Any())
-    {
-        <div class="empty-state" style="display: block;">
-            No activity yet today.
-        </div>
-    }
 </section>
 
 @code {
     [Parameter]
-    public List<ActivityRecord> Records { get; set; } = new();
+    public List<SessionRecord> Records { get; set; } = new();
 
     [Parameter]
     public EventCallback OnSyncComplete { get; set; }
@@ -75,5 +71,22 @@
     {
         await TrackingService.ClearAllRecordsAsync();
         await OnSyncComplete.InvokeAsync();
+    }
+
+    private async Task LoadFile(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            using var stream = e.File.OpenReadStream(maxAllowedSize: 512000); // 500kb max
+            using var reader = new System.IO.StreamReader(stream);
+            var content = await reader.ReadToEndAsync();
+            
+            await TrackingService.LoadFromMarkdownAsync(content);
+            await OnSyncComplete.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error reading file: {ex.Message}");
+        }
     }
 }
