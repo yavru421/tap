@@ -11,6 +11,21 @@
     font-size: 1.1rem;
 }
 
+.brand-logo {
+    height: 1.8rem;
+    width: 1.8rem;
+    border-radius: 6px;
+    filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.5));
+}
+
+.brand-text {
+    font-weight: 700;
+    letter-spacing: 0.05rem;
+    background: linear-gradient(135deg, #a78bfa 0%, #6366f1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
 .bi {
     display: inline-block;
     position: relative;

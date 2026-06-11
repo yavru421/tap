@@ -3,9 +3,14 @@
   "short_name": "TAP",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#080710",
+  "theme_color": "#080710",
   "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
     {
       "src": "icon-512.png",
       "type": "image/png",
