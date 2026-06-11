@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Tap.Client")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+99f67b0b0af407048952addb89400f0c96299473")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3bc74652b96f451bdeb6d09c4cff4df3fc53e08b")]
 [assembly: System.Reflection.AssemblyProductAttribute("Tap.Client")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Tap.Client")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

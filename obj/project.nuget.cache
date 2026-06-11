@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "hVxX1fpc75s=",
+  "dgSpecHash": "21sGtxQ6I60=",
   "success": true,
   "projectFilePath": "C:\\dev\\TEMPLATE\\tap\\Tap.Client.csproj",
   "expectedPackageFiles": [
@@ -22,6 +22,8 @@
     "C:\\Users\\John\\.nuget\\packages\\microsoft.extensions.fileproviders.abstractions\\8.0.0\\microsoft.extensions.fileproviders.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\John\\.nuget\\packages\\microsoft.extensions.fileproviders.physical\\8.0.0\\microsoft.extensions.fileproviders.physical.8.0.0.nupkg.sha512",
     "C:\\Users\\John\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\8.0.0\\microsoft.extensions.filesystemglobbing.8.0.0.nupkg.sha512",
+    "C:\\Users\\John\\.nuget\\packages\\microsoft.extensions.localization\\8.0.8\\microsoft.extensions.localization.8.0.8.nupkg.sha512",
+    "C:\\Users\\John\\.nuget\\packages\\microsoft.extensions.localization.abstractions\\8.0.8\\microsoft.extensions.localization.abstractions.8.0.8.nupkg.sha512",
     "C:\\Users\\John\\.nuget\\packages\\microsoft.extensions.logging\\8.0.1\\microsoft.extensions.logging.8.0.1.nupkg.sha512",
     "C:\\Users\\John\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.3\\microsoft.extensions.logging.abstractions.8.0.3.nupkg.sha512",
     "C:\\Users\\John\\.nuget\\packages\\microsoft.extensions.options\\8.0.2\\microsoft.extensions.options.8.0.2.nupkg.sha512",
@@ -30,6 +32,7 @@
     "C:\\Users\\John\\.nuget\\packages\\microsoft.jsinterop.webassembly\\8.0.28\\microsoft.jsinterop.webassembly.8.0.28.nupkg.sha512",
     "C:\\Users\\John\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.28\\microsoft.net.illink.tasks.8.0.28.nupkg.sha512",
     "C:\\Users\\John\\.nuget\\packages\\microsoft.net.sdk.webassembly.pack\\10.0.8\\microsoft.net.sdk.webassembly.pack.10.0.8.nupkg.sha512",
+    "C:\\Users\\John\\.nuget\\packages\\mudblazor\\7.15.0\\mudblazor.7.15.0.nupkg.sha512",
     "C:\\Users\\John\\.nuget\\packages\\system.io.pipelines\\8.0.0\\system.io.pipelines.8.0.0.nupkg.sha512",
     "C:\\Users\\John\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.27\\microsoft.netcore.app.runtime.mono.browser-wasm.8.0.27.nupkg.sha512"
   ],
