@@ -119,6 +119,23 @@
             }
         </div>
 
+        <!-- iOS Scriptable Widget Card -->
+        <div class="card scriptable-card" style="border-color: #6366f1; background: rgba(99, 102, 241, 0.05);">
+            <h2>iOS Scriptable Widget Integration</h2>
+            <p class="verification-desc">Copy this JavaScript code and paste it into the iOS <strong>Scriptable</strong> app to install a Home Screen Widget representing your punch status.</p>
+            
+            <textarea class="form-control" style="font-family: monospace; font-size: 0.75rem; height: 120px; background: rgba(0,0,0,0.3); color: #c9d1d9;" readonly>@ScriptableCode</textarea>
+            
+            <button class="btn-secondary" style="background: rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.3); color: #c7d2fe; display: flex; align-items: center; justify-content: center; width: 100%; gap: 6px;" @onclick="CopyScriptableScript">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                Copy Scriptable Code
+            </button>
+            @if (showCopiedIndicator)
+            {
+                <span style="font-size: 0.75rem; color: #2ea043; text-align: center; font-weight: bold; margin-top: 4px; display: block;">✔ Scriptable code copied to clipboard!</span>
+            }
+        </div>
+
         <!-- Recent Activity Sync List -->
         <div class="card activity-card">
             <h2>Recent Activity</h2>
@@ -325,6 +342,59 @@
     private void GoHome()
     {
         Navigation.NavigateTo("/");
+    }
+
+    private bool showCopiedIndicator = false;
+    private string ScriptableCode => 
+@"// Scriptable Widget for Time Calc PWA
+let url = ""https://timecalc.pages.dev/time-calc"";
+let isClockedIn = " + isClockedIn.ToString().ToLower() + @";
+let lastTime = """ + DateTime.Now.ToString("hh:mm tt") + @""";
+
+let widget = new ListWidget();
+widget.backgroundColor = new Color(""#161b22"");
+
+let title = widget.addText(""Work Shift"");
+title.font = Font.boldSystemFont(12);
+title.textColor = new Color(""#8b949e"");
+
+widget.addSpacer(8);
+
+let statusStack = widget.addStack();
+statusStack.centerAlignContent();
+
+let dot = statusStack.addText(""● "");
+dot.font = Font.boldSystemFont(14);
+dot.textColor = isClockedIn ? new Color(""#2ea043"") : new Color(""#ff7b72"");
+
+let statusText = statusStack.addText(isClockedIn ? ""Clocked In"" : ""Clocked Out"");
+statusText.font = Font.boldSystemFont(14);
+statusText.textColor = isClockedIn ? new Color(""#2ea043"") : new Color(""#ff7b72"");
+
+widget.addSpacer(4);
+
+let time = widget.addText(""Last status: "" + lastTime);
+time.font = Font.mediumSystemFont(10);
+time.textColor = new Color(""#8b949e"");
+
+widget.addSpacer(8);
+
+let btn = widget.addText(""🔄 Open Attendance"");
+btn.font = Font.boldSystemFont(12);
+btn.textColor = new Color(""#ffffff"");
+widget.url = url;
+
+Script.setWidget(widget);
+Script.complete();";
+
+    private async Task CopyScriptableScript()
+    {
+        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", ScriptableCode);
+        showCopiedIndicator = true;
+        StateHasChanged();
+        await Task.Delay(2000);
+        showCopiedIndicator = false;
+        StateHasChanged();
     }
 
     public void Dispose()
