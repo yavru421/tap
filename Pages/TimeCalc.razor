@@ -1,0 +1,335 @@
+@page "/time-calc"
+@inject SyncService Sync
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<PageTitle>Mobile Time Attendance - iOS PWA</PageTitle>
+
+<div class="time-calc-layout">
+    <!-- 5. Network Offline Sticky Banner -->
+    @if (!Sync.IsOnline)
+    {
+        <div class="network-alert-banner offline">
+            <span class="pulse-dot red"></span>
+            You're offline — punches saving locally to IndexedDB/SQLite
+        </div>
+    }
+    else
+    {
+        <div class="network-alert-banner online">
+            <span class="pulse-dot green"></span>
+            Back online — system synchronized
+        </div>
+    }
+
+    <!-- 7. DMA Standalone Fallback Banner for EU iOS 17.4+ users -->
+    @if (showDmaFallback)
+    {
+        <div class="dma-fallback-banner">
+            <div class="dma-icon">🇪🇺</div>
+            <div class="dma-text">
+                <strong>EU Web App Notice:</strong> Safari may render this in a tab due to iOS DMA regulations. 
+                Tap the Share button and select <strong>"Add to Home Screen"</strong> for full native offline capabilities.
+            </div>
+            <button class="dma-close" @onclick="() => showDmaFallback = false">✕</button>
+        </div>
+    }
+
+    <!-- Premium Header -->
+    <header class="app-header">
+        <button class="btn-back" @onclick="GoHome">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+        <div class="header-titles">
+            <h1>Attendance Desk</h1>
+            <p>Field Service Attendance & Verification</p>
+        </div>
+        <div class="badge-persistent" title="iOS Persistence Status">
+            @if (isPersistentGranted)
+            {
+                <span class="status-indicator active">✓ Persistent</span>
+            }
+            else
+            {
+                <span class="status-indicator pending">⚠ Standard</span>
+            }
+        </div>
+    </header>
+
+    <main class="app-main-content">
+        <!-- Geofence & Map Card -->
+        <div class="card map-card">
+            <div class="card-header">
+                <h2>Visual Geofence</h2>
+                <div class="location-status @(isWithinGeofence ? "ok" : "warn")">
+                    @(isWithinGeofence ? "Within Site Radius" : "Outside Allowed Site")
+                </div>
+            </div>
+            
+            <div id="leafletMap" class="leaflet-map-container"></div>
+            
+            <div class="map-controls">
+                <button class="btn-secondary" @onclick="SimulateInsideOffice">Simulate Inside Office</button>
+                <button class="btn-secondary" @onclick="SimulateOutsideOffice">Simulate Outside Office</button>
+            </div>
+        </div>
+
+        <!-- Verification & Action Card -->
+        <div class="card punch-card">
+            <h2>Selfie Verification</h2>
+            <p class="verification-desc">Require a selfie at clock-in to prevent "buddy punching" (photo compressed &lt; 150KB for cellular sync).</p>
+
+            <div class="camera-verification-zone">
+                @if (string.IsNullOrEmpty(selfieImageBase64))
+                {
+                    <div class="selfie-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        <span>Selfie Required to Clock In</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="selfie-preview-container">
+                        <img src="data:image/jpeg;base64,@selfieImageBase64" class="selfie-preview-image" alt="Selfie preview" />
+                        <button class="btn-clear-photo" @onclick="ClearSelfie">Change Photo</button>
+                    </div>
+                }
+
+                <div class="camera-input-wrapper">
+                    <!-- Native camera capture trigger -->
+                    <input type="file" id="selfieCamera" accept="image/*" capture="user" @onchange="OnSelfieFileSelected" class="hidden-input" />
+                    <label for="selfieCamera" class="btn-camera-trigger">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        Take Selfie
+                    </label>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <button class="btn-clock-in" style="@(isClockedIn ? "background-color: #f85149;" : "")" disabled="@(!CanClockIn)" @onclick="ClockIn">
+                <span>@(isClockedIn ? "Clock Out Now" : "Clock In Now")</span>
+            </button>
+            @if (!CanClockIn)
+            {
+                <span class="clock-in-reason">
+                    @(!isWithinGeofence ? "❌ Location outside geofence radius" : "")
+                    @(isWithinGeofence && string.IsNullOrEmpty(selfieImageBase64) ? "📷 Selfie verification required" : "")
+                </span>
+            }
+        </div>
+
+        <!-- Recent Activity Sync List -->
+        <div class="card activity-card">
+            <h2>Recent Activity</h2>
+            <p class="section-subtitle">Real-time uploads and offline sync queue.</p>
+
+            <div class="activity-list">
+                @if (Sync.CacheQueue.Count == 0)
+                {
+                    <div class="empty-list">
+                        No clock-ins recorded.
+                    </div>
+                }
+                else
+                {
+                    @foreach (var item in Sync.CacheQueue)
+                    {
+                        <div class="activity-item">
+                            @if (!string.IsNullOrEmpty(item.SelfieBase64))
+                            {
+                                <img src="data:image/jpeg;base64,@item.SelfieBase64" class="item-selfie-thumbnail" alt="Thumb" />
+                            }
+                            else
+                            {
+                                <div class="item-selfie-thumbnail empty-thumb">📷</div>
+                            }
+
+                            <div class="item-details">
+                                <div class="item-meta">
+                                    <span class="item-time">@item.Timestamp.ToLocalTime().ToString("hh:mm tt")</span>
+                                    <span class="item-coords">@item.ErrorMessage</span>
+                                </div>
+                                <div class="item-sync-status">
+                                    @if (item.IsSynced)
+                                    {
+                                        <span class="badge synced">Synced</span>
+                                    }
+                                    else if (item.SyncSkip)
+                                    {
+                                        <span class="badge skipped">Skipped</span>
+                                    }
+                                    else if (item.SyncFailed)
+                                    {
+                                        <span class="badge failed" title="@item.ErrorMessage">Failed</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge pending-sync">Syncing...</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Per-Entry Retry / Skip controls -->
+                            @if (!item.IsSynced && item.SyncFailed && !item.SyncSkip)
+                            {
+                                <div class="sync-actions-group">
+                                    <button class="btn-sync-retry" @onclick="() => Sync.RetryEntryAsync(item.Id)">Retry</button>
+                                    <button class="btn-sync-skip" @onclick="() => Sync.SkipEntryAsync(item.Id)">Skip</button>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </main>
+</div>
+
+@code {
+    private bool isPersistentGranted = false;
+    private bool isWithinGeofence = false;
+    private string? selfieImageBase64;
+    private double currentLat = 37.7749; // Default San Francisco coordinates
+    private double currentLng = -122.4194;
+    private const double officeLat = 37.7749;
+    private const double officeLng = -122.4194;
+    private const double AllowedRadiusMeters = 100;
+    private bool showDmaFallback = false;
+    private bool isClockedIn = false;
+    private DotNetObjectReference<TimeCalc>? pageRef;
+
+    private bool CanClockIn => isClockedIn || (isWithinGeofence && !string.IsNullOrEmpty(selfieImageBase64));
+
+    protected override async Task OnInitializedAsync()
+    {
+        Sync.OnSyncStatusChanged += StateHasChanged;
+        await Sync.InitializeAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // 1. Prevent 7-day data eviction: request persistent storage
+            isPersistentGranted = await JSRuntime.InvokeAsync<bool>("iosPwa.requestPersistentStorage");
+
+            // Check if inside iOS Safari browser tabs (DMA regulation fallback)
+            var userAgent = await JSRuntime.InvokeAsync<string>("eval", "navigator.userAgent");
+            var isStandalone = await JSRuntime.InvokeAsync<bool>("eval", "'standalone' in window.navigator && window.navigator.standalone");
+            var isIos = userAgent.Contains("iPhone") || userAgent.Contains("iPad") || userAgent.Contains("iPod");
+            
+            if (isIos && !isStandalone)
+            {
+                showDmaFallback = true;
+            }
+
+            // 3. Initialize Leaflet Map
+            await JSRuntime.InvokeVoidAsync("iosPwa.initializeMap", "leafletMap", officeLat, officeLng, AllowedRadiusMeters);
+            
+            // Set initial position
+            await UpdatePosition(currentLat, currentLng);
+
+            // Register widget listener callback
+            pageRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("iosPwa.registerWidgetCallback", pageRef);
+            
+            StateHasChanged();
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnWidgetTogglePressed()
+    {
+        isClockedIn = !isClockedIn;
+        var statusString = isClockedIn ? "In" : "Out";
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+        // Sync state back to WKWebView (which keeps Widget and Live Activity updated)
+        await JSRuntime.InvokeVoidAsync("iosPwa.notifyNativeStatusChanged", statusString, timestamp);
+
+        var entry = new ClockInEntry
+        {
+            Latitude = currentLat,
+            Longitude = currentLng,
+            SelfieBase64 = null, // No selfie when clocked via widget
+            Timestamp = DateTime.UtcNow,
+            ErrorMessage = isClockedIn ? "Clocked In via Widget Intent" : "Clocked Out via Widget Intent"
+        };
+
+        await Sync.AddEntryAsync(entry);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnSelfieFileSelected(ChangeEventArgs e)
+    {
+        try
+        {
+            var elementRef = await JSRuntime.InvokeAsync<IJSObjectReference>("eval", "document.getElementById('selfieCamera')");
+            selfieImageBase64 = await JSRuntime.InvokeAsync<string?>("iosPwa.compressImage", elementRef);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Compression error: " + ex.Message);
+        }
+    }
+
+    private void ClearSelfie()
+    {
+        selfieImageBase64 = null;
+    }
+
+    private async Task ClockIn()
+    {
+        if (!CanClockIn) return;
+
+        isClockedIn = !isClockedIn;
+        var statusString = isClockedIn ? "In" : "Out";
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+        // 1. WKWebView State Syncing: postMessage to Swift
+        await JSRuntime.InvokeVoidAsync("iosPwa.notifyNativeStatusChanged", statusString, timestamp);
+
+        var entry = new ClockInEntry
+        {
+            Latitude = currentLat,
+            Longitude = currentLng,
+            SelfieBase64 = selfieImageBase64,
+            Timestamp = DateTime.UtcNow,
+            ErrorMessage = isClockedIn ? "Clocked In (Verified Selfie)" : "Clocked Out"
+        };
+
+        await Sync.AddEntryAsync(entry);
+        selfieImageBase64 = null; // Reset photo
+        StateHasChanged();
+    }
+
+    private async Task UpdatePosition(double lat, double lng)
+    {
+        currentLat = lat;
+        currentLng = lng;
+        isWithinGeofence = await JSRuntime.InvokeAsync<bool>("iosPwa.updateUserPosition", lat, lng);
+    }
+
+    private async Task SimulateInsideOffice()
+    {
+        await UpdatePosition(officeLat + 0.0001, officeLng - 0.0001);
+    }
+
+    private async Task SimulateOutsideOffice()
+    {
+        await UpdatePosition(officeLat + 0.005, officeLng - 0.005);
+    }
+
+    private void GoHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    public void Dispose()
+    {
+        Sync.OnSyncStatusChanged -= StateHasChanged;
+        pageRef?.Dispose();
+    }
+}

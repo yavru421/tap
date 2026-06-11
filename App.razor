@@ -1,4 +1,9 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
+<MudThemeProvider Theme="_customTheme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -10,3 +15,30 @@
         </LayoutView>
     </NotFound>
 </Router>
+
+@code {
+    private readonly MudTheme _customTheme = new()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#3B82F6", // Modern Slate-Blue primary
+            Secondary = "#10B981", // Emerald accent
+            AppbarBackground = "#1E293B", // Dark slate appbar for premium high-contrast
+            Background = "#F8FAFC", // Clean light gray/blue
+            Surface = "#FFFFFF",
+            DrawerBackground = "#F1F5F9"
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Primary = "#60A5FA",
+            Secondary = "#34D399",
+            Background = "#0F172A", // Jet dark theme background
+            Surface = "#1E293B",
+            DrawerBackground = "#1E293B"
+        },
+        LayoutProperties = new LayoutProperties()
+        {
+            DefaultBorderRadius = "8px"
+        }
+    };
+}
